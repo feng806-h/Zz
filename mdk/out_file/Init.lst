@@ -1,0 +1,64 @@
+C251 COMPILER V5.60.0,  Init                                                               18/03/26  15:56:40  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE Init
+OBJECT MODULE PLACED IN .\out_file\Init.obj
+COMPILER INVOKED BY: C:\Keil_v5\C251\BIN\C251.EXE Init.c LARGE NOALIAS FLOAT64 WARNINGLEVEL(3) OPTIMIZE(SIZE) BROWSE INC
+                    -DIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;..\user;
+                    -..\code) DEBUG PRINT(.\out_file\Init.lst) TABS(2) OBJECT(.\out_file\Init.obj) 
+
+stmt  level    source
+
+    1          #include "Init.h"
+    2          
+    3          void init(void)
+    4          {
+    5   1      Motor_Init();     //µç»ú³õÊ¼»¯
+    6   1      Encoder_Init();   //±àÂëÆ÷³õÊ¼»¯
+    7   1      imu660rb_init();  //×ËÌ¬´«¸ÐÆ÷³õÊ¼»¯
+    8   1      pit_hanlder1 ();
+    9   1      }
+   10          
+   11          
+   12          
+   13          //-------------------------------------------------------------------------------------------------------
+             -------------
+   14          // º¯Êý¼ò½é     PIT µÄÖÐ¶Ï´¦Àíº¯Êý Õâ¸öº¯Êý½«ÔÚ PIT ¶ÔÓ¦µÄ¶¨Ê±Æ÷ÖÐ¶Ïµ÷ÓÃ 
+   15          // ²ÎÊýËµÃ÷     void
+   16          // ·µ»Ø²ÎÊý     void
+   17          // Ê¹ÓÃÊ¾Àý     pit_hanlder();
+   18          //-------------------------------------------------------------------------------------------------------
+             -------------
+   19          void pit_hanlder1 (void)
+   20          {
+   21   1      Encoder_data_get();
+   22   1        
+   23   1        //    imu660rb_get_acc();                                                         // »ñÈ¡ IMU660RB µÄ¼ÓË
+             -Ù¶È²âÁ¿ÊýÖµ
+   24   1      //    imu660rb_get_gyro();                                                        // »ñÈ¡ IMU660RB µÄ½ÇËÙ
+             -¶È²âÁ¿ÊýÖµ
+   25   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =        15     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

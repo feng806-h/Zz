@@ -1,0 +1,56 @@
+C251 COMPILER V5.60.0,  driver                                                             07/03/26  14:50:36  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE driver
+OBJECT MODULE PLACED IN .\out_file\driver.obj
+COMPILER INVOKED BY: C:\Keil_v5\C251\BIN\C251.EXE driver.c LARGE NOALIAS FLOAT64 WARNINGLEVEL(3) OPTIMIZE(SIZE) BROWSE I
+                    -NCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;..\use
+                    -r;..\code) DEBUG PRINT(.\out_file\driver.lst) TABS(2) OBJECT(.\out_file\driver.obj) 
+
+stmt  level    source
+
+    1          #include "driver.h"
+    2          
+    3          void drive_one_test()
+    4          {
+    5   1        pwm_init(MotorL_pwm1, 50, 5000);
+    6   1        gpio_init(MotorL_turn1, GPO, 1, GPO_PUSH_PULL);
+    7   1      }
+    8          
+    9          void MotorL_SetSpeed(int pwm)
+   10          {
+   11   1          if(pwm>=0)
+   12   1          {
+   13   2         gpio_set_level(MotorL_turn1,1);
+   14   2         pwm_set_duty(MotorL_pwm1,pwm);
+   15   2          }
+   16   1          else
+   17   1          {
+   18   2           gpio_set_level(MotorL_turn1,0);
+   19   2           pwm_set_duty(MotorL_pwm1,-pwm);
+   20   2          }
+   21   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =        95     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

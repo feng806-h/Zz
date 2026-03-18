@@ -1,0 +1,710 @@
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE menu
+OBJECT MODULE PLACED IN .\out_file\menu.obj
+COMPILER INVOKED BY: C:\Keil_v5\C251\BIN\C251.EXE menu.c LARGE NOALIAS FLOAT64 WARNINGLEVEL(3) OPTIMIZE(SIZE) BROWSE INC
+                    -DIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;..\user;
+                    -..\code) DEBUG PRINT(.\out_file\menu.lst) TABS(2) OBJECT(.\out_file\menu.obj) 
+
+stmt  level    source
+
+    1          //#include "menu.h"
+    2          
+    3          //uint8 flag_auto_mode = 0;   // 1:ÎŞ¿ØÄ£Ê½(¿¿GPS+IMUµ¼º½) °´ÏÂÊÖ±ú°´¼ü£¬×ªÎª0£ºÓĞ¿ØÄ£Ê½,Ò£¿ØÆ÷¿ØÖÆµç»úÇı
+             -¶¯
+    4          //uint8 flag_car_start = 0;   // ·¢³µ±êÖ¾Î» 1 ·¢³µ 0 Í£³µ
+    5          //uint8 flag_menu_enable = 1; // ²Ëµ¥±êÖ¾Î» 1 Ê¹ÓÃ²Ëµ¥  0¹Ø±Õ²Ëµ¥
+    6          //uint8 flag_close_loop = 0;  // µç»ú±Õ»·±êÖ¾Î» 1 ±Õ»· 0¿ª»·
+    7          
+    8          //uint8 page_index = 0;      // ±íÊ¾Ò³ÂëºÅ
+    9          //bool only_one_time = true; // Ê¹µÃÄ³Ò»¿éº¯ÊıÔÚwhile£¨1£©ÀïÃæÖ»Ö´ĞĞÒ»´ÎµÄ²Ù×÷
+   10          
+   11          //uint8 key_value = 0;
+   12          //uint8 function_index = 0; // ³õÊ¼ÏÔÊ¾²Ëµ¥Ò³ÂëÎª0
+   13          //uint8 last_index = 127;   // last³õÊ¼ÎªÎŞĞ§Öµ
+   14          
+   15          //int target_speed = 20;                 // ÆÚÍû±àÂëÆ÷×ªËÙ
+   16          //int motor_duty = 10;                   // µç»úÕ¼¿Õ±È
+   17          //void (*current_operation_index)(void); // º¯ÊıÖ¸Õë£ºÏÔÊ¾º¯ÊıË÷ÒıÖ¸Õë(µ±Ç°²Ù×÷Ë÷Òı)
+   18          
+   19          //MenuTable table_dispaly[30] = // ½á¹¹ÌåÊı×é£¬Êı×éÀïÃæÓĞ¶àÉÙÒ³Âë¾ÍÓĞ¶àÉÙ¸öÔªËØ
+   20          //    {
+   21          //        // current  up  enter
+   22          //        // µÚ1²ã
+   23          //        {0, 3, 4, Function_a1},  // gps
+   24          //        {1, 0, 8, Function_b1},  // pid
+   25          //        {2, 1, 12, Function_c1}, // speed
+   26          //        {3, 2, 0, Function_d1},  // esc
+   27          
+   28          //        // µÚ2²ã
+   29          //        {4, 7, 16, Function_a21},
+   30          //        {5, 4, 17, Function_a22},
+   31          //        {6, 5, 18, Function_a23},
+   32          //        {7, 6, 0, Function_a24},
+   33          
+   34          //        {8, 11, 19, Function_b21},
+   35          //        {9, 8, 20, Function_b22},
+   36          //        {10, 9, 21, Function_b23},
+   37          //        {11, 10, 1, Function_b24},
+   38          
+   39          //        {12, 15, 22, Function_c21},
+   40          //        {13, 12, 23, Function_c22},
+   41          //        {14, 13, 24, Function_c23},
+   42          //        {15, 14, 2, Function_c24},
+   43          
+   44          //        // µÚ3²ã
+   45          //        {16, 16, 4, Function_a31},
+   46          //        {17, 17, 5, Function_a32},
+   47          //        {18, 18, 6, Function_a33},
+   48          
+   49          //        {19, 19, 8, Function_b31},
+   50          //        {20, 20, 9, Function_b32},
+   51          //        {21, 21, 10, Function_b33},
+   52          
+   53          //        {22, 22, 12, Function_c31},
+   54          //        {23, 23, 13, Function_c32},
+   55          //        {24, 24, 14, Function_c33},
+   56          //};
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 2   
+
+   57          
+   58          ///******************************************************************************************************
+             -***************
+   59          // * @brief ²Ëµ¥ÏµÍ³µÄÖ÷º¯Êı
+   60          // * @param none
+   61          // * @example
+   62          // * @date 2024.10.2
+   63          // * @remark °´¼ü3£¬4·Ö±ğ¶ÔÓ¦½øÈëºÍÏÂÒ»ÏîµÄ²Ù×÷£¬Í¨¹ı´«µİË÷Òı£¬×îºóº¯ÊıÖ¸ÕëÖ¸ÏòĞèÒªµ÷ÓÃµÄÏÔÊ¾º¯Êı
+   64          // * @note Èç¹ûÄãµÄ²Ëµ¥ÓĞbug£¬Ê×ÏÈ¼ì²é²Ëµ¥Ö÷º¯ÊıÊÇ·ñ´æÔÚÂß¼­ÎÊÌâ
+   65          // ******************************************************************************************************
+             -**************/
+   66          //void MenuIndex(void)
+   67          //{
+   68          //    if (flag_key3)
+   69          //    {
+   70          //        ips200_clear();
+   71          //        flag_key3 = 0;
+   72          //        function_index = table_dispaly[function_index].enter; // È·ÈÏ
+   73          //    }
+   74          //    if (flag_key4)
+   75          //    {
+   76          //        ips200_clear();
+   77          //        flag_key4 = 0;
+   78          //        function_index = table_dispaly[function_index].up; // ÏòÉÏ·­
+   79          //    }
+   80          //    table_dispaly[function_index].current_operation(); // Ö´ĞĞµ±Ç°½á¹¹ÌåÊı×é¶ÔÓ¦ÔªËØÀïÃæµÄ²Ù×÷º¯Êı
+   81          
+   82          //    // current_operation_index = table_dispaly[function_index].current_operation;
+   83          //    // (*current_operation_index)(); // ÕâÁ½¾ä»°µÈ¼ÛÓÚÉÏÃæµÄ½á¹¹ÌåÊı×éº¯Êıµ÷ÓÃ
+   84          
+   85          //    // À§ÈÅÎÒÁ½ÌìµÄÎÊÌâÔÚÓÚÕâ¶Î´úÂë£¬×¢ÊÍµô£¬²Ëµ¥¾ÍÃ»ÓĞbugÁË
+   86          //    if (function_index != last_index)
+   87          //    {
+   88          //        only_one_time = true; // ±£Ö¤Ã¿´Î¸üĞÂÖ¸ÏòµÄÏÔÊ¾º¯Êı¶¼¿ÉÒÔÂú×ã£¬ÕâÀïÃæµÄÖ¸¶¨´úÂëÖ»Ö´ĞĞÒ»´Î
+   89          //        last_index = function_index;
+   90          //    }
+   91          //}
+   92          
+   93          ///******************************************************************************************************
+             -***************
+   94          // * @brief °´¼üµ÷²Îº¯Êı
+   95          // * @param none
+   96          // * @example
+   97          // * @date 2024.10.2
+   98          // * @remark ×¢ÒâÖ¸Õë×÷Îª²ÎÊı¡£Õâ¸öº¯ÊıÔÚÒ»Ğ©±äÁ¿ĞèÒªµ÷½ÚÊıÖµµÄÊ±ºò½øĞĞµ÷ÓÃ£¬±ÈÈçËÙ¶È»·µÄ²ÎÊı¡£
+   99          // ******************************************************************************************************
+             -**************/
+  100          //int MenuKeyOperation(int *parameter)
+  101          //{ // Ö÷°åÉÏ£¬°´¼ü2ÔÚÉÏ£¬ÕâÀïÉèÎª+£»°´¼ü1ÔÚÏÂ£¬ÕâÀïÉèÎª-
+  102          //    if (flag_key2)
+  103          //    {
+  104          //        flag_key2 = 0;
+  105          //        key_value = 2;
+  106          //    }
+  107          //    if (flag_key1)
+  108          //    {
+  109          //        flag_key1 = 0;
+  110          //        key_value = 1;
+  111          //    }
+  112          
+  113          //    switch (key_value)
+  114          //    {
+  115          //    case 2:
+  116          //        *parameter += 1, key_value = 0;
+  117          //        break;
+  118          //    case 1:
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 3   
+
+  119          //        *parameter -= 1, key_value = 0;
+  120          //        break;
+  121          //    default:
+  122          //        break;
+  123          //    }
+  124          //    ips200_show_string(0 * 8, 10 * 8, "*parameter");
+  125          //    ips200_show_int(0, 12 * 8, *parameter, 3);
+  126          
+  127          //    return *parameter;
+  128          //}
+  129          
+  130          ///******************************************************************************************************
+             -***************
+  131          // * @brief Çå³ıÖ¸¶¨µÄFlashÉÈÒ³
+  132          // * @param none
+  133          // * @example
+  134          // * @date 2024.10.2
+  135          // * @remark ×¢Òâ´«ÈëµÄ²ÎÊıÊÇºê¶¨Òå
+  136          // ******************************************************************************************************
+             -**************/
+  137          //void EraseMenuFlash(int PAGE_INDEX)
+  138          //{
+  139          //    flash_buffer_clear();
+  140          //    flash_erase_page(FLASH_SECTION_INDEX, PAGE_INDEX);
+  141          //    if (PAGE_INDEX == 8)
+  142          //    {
+  143          //        current_point_number_flash = 0; // ±íÊ¾Ä¿Ç°²É¼¯µãµÄÊıÁ¿£¬ÕâÀïÉèÎª0
+  144          //    }
+  145          
+  146          //    // printf("\r\nThe specified page %d has been erased!", PAGE_INDEX);
+  147          //}
+  148          
+  149          ////--------------------------------------------ÒÔÏÂÊÇÏÔÊ¾²¿·Ö-------------------------------------------
+             --//
+  150          
+  151          ///*********µÚ1²ã***********/
+  152          //void Function_a1()
+  153          //{
+  154          
+  155          //    ips200_show_string(0, 16 * 1, "->");
+  156          //    ips200_show_string(20, 16 * 1, "gps");
+  157          //    ips200_show_string(20, 16 * 3, "parameter");
+  158          //    ips200_show_string(20, 16 * 5, "about flash");
+  159          //    ips200_show_string(20, 16 * 7, "esc");
+  160          //}
+  161          
+  162          //void Function_b1()
+  163          //{
+  164          //    ips200_show_string(0, 16 * 3, "->");
+  165          //    ips200_show_string(20, 16 * 1, "gps");
+  166          //    ips200_show_string(20, 16 * 3, "parameter");
+  167          //    ips200_show_string(20, 16 * 5, "about flash");
+  168          //    ips200_show_string(20, 16 * 7, "esc");
+  169          //}
+  170          
+  171          //void Function_c1()
+  172          //{
+  173          //    ips200_show_string(0, 16 * 5, "->");
+  174          //    ips200_show_string(20, 16 * 1, "gps");
+  175          //    ips200_show_string(20, 16 * 3, "parameter");
+  176          //    ips200_show_string(20, 16 * 5, "about flash");
+  177          //    ips200_show_string(20, 16 * 7, "esc");
+  178          //}
+  179          
+  180          //void Function_d1()
+  181          //{
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 4   
+
+  182          //    ips200_show_string(0, 16 * 7, "->");
+  183          //    ips200_show_string(20, 16 * 1, "gps");
+  184          //    ips200_show_string(20, 16 * 3, "parameter");
+  185          //    ips200_show_string(20, 16 * 5, "about flash");
+  186          //    ips200_show_string(20, 16 * 7, "esc");
+  187          //}
+  188          
+  189          /////*********µÚ2²ã***********/
+  190          //void Function_a21() //------gps
+  191          //{
+  192          //    ips200_show_string(0, 16 * 1, "->");
+  193          //    ips200_show_string(20, 16 * 1, "store_gps_points");
+  194          //    ips200_show_string(20, 16 * 3, "store_point_num");
+  195          //    ips200_show_string(20, 16 * 5, "show_gps_data");
+  196          //    ips200_show_string(20, 16 * 7, "esc");
+  197          //}
+  198          
+  199          //void Function_a22()
+  200          //{
+  201          //    ips200_show_string(0, 16 * 3, "->");
+  202          //    ips200_show_string(20, 16 * 1, "store_gps_points");
+  203          //    ips200_show_string(20, 16 * 3, "store_point_num");
+  204          //    ips200_show_string(20, 16 * 5, "show_gps_data");
+  205          //    ips200_show_string(20, 16 * 7, "esc");
+  206          //}
+  207          
+  208          //void Function_a23()
+  209          //{
+  210          //    ips200_show_string(0, 16 * 5, "->");
+  211          //    ips200_show_string(20, 16 * 1, "store_gps_points");
+  212          //    ips200_show_string(20, 16 * 3, "store_point_num");
+  213          //    ips200_show_string(20, 16 * 5, "show_gps_data");
+  214          //    ips200_show_string(20, 16 * 7, "esc");
+  215          //}
+  216          
+  217          //void Function_a24()
+  218          //{
+  219          //    ips200_show_string(0, 16 * 7, "->");
+  220          //    ips200_show_string(20, 16 * 1, "store_gps_points");
+  221          //    ips200_show_string(20, 16 * 3, "store_point_num");
+  222          //    ips200_show_string(20, 16 * 5, "show_gps_data");
+  223          //    ips200_show_string(20, 16 * 7, "esc");
+  224          //}
+  225          
+  226          //void Function_b21() //------parameter
+  227          //{
+  228          //    ips200_show_string(0, 16 * 1, "->");
+  229          //    ips200_show_string(20, 16 * 1, "speed_regulate");
+  230          //    ips200_show_string(20, 16 * 3, "none");
+  231          //    ips200_show_string(20, 16 * 5, "motor_pwm_regulate");
+  232          //    ips200_show_string(20, 16 * 7, "esc");
+  233          //}
+  234          
+  235          //void Function_b22()
+  236          //{
+  237          //    ips200_show_string(0, 16 * 3, "->");
+  238          //    ips200_show_string(20, 16 * 1, "speed_regulate");
+  239          //    ips200_show_string(20, 16 * 3, "none");
+  240          //    ips200_show_string(20, 16 * 5, "motor_pwm_regulate");
+  241          //    ips200_show_string(20, 16 * 7, "esc");
+  242          //}
+  243          
+  244          //void Function_b23()
+  245          //{
+  246          //    ips200_show_string(0, 16 * 5, "->");
+  247          //    ips200_show_string(20, 16 * 1, "speed_regulate");
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 5   
+
+  248          //    ips200_show_string(20, 16 * 3, "none");
+  249          //    ips200_show_string(20, 16 * 5, "motor_pwm_regulate");
+  250          //    ips200_show_string(20, 16 * 7, "esc");
+  251          //}
+  252          
+  253          //void Function_b24()
+  254          //{
+  255          //    ips200_show_string(0, 16 * 7, "->");
+  256          //    ips200_show_string(20, 16 * 1, "speed_regulate");
+  257          //    ips200_show_string(20, 16 * 3, "none");
+  258          //    ips200_show_string(20, 16 * 5, "motor_pwm_regulate");
+  259          //    ips200_show_string(20, 16 * 7, "esc");
+  260          //}
+  261          
+  262          //void Function_c21() //------about flash
+  263          //{
+  264          //    ips200_show_string(0, 16 * 1, "->");
+  265          //    ips200_show_string(20, 16 * 1, "erase_flash");
+  266          //    ips200_show_string(20, 16 * 3, "car_satrt");
+  267          //    ips200_show_string(20, 16 * 5, "check_page_exist");
+  268          //    ips200_show_string(20, 16 * 7, "esc");
+  269          //}
+  270          
+  271          //void Function_c22()
+  272          //{
+  273          //    ips200_show_string(0, 16 * 3, "->");
+  274          //    ips200_show_string(20, 16 * 1, "erase_flash");
+  275          //    ips200_show_string(20, 16 * 3, "car_satrt");
+  276          //    ips200_show_string(20, 16 * 5, "check_page_exist");
+  277          //    ips200_show_string(20, 16 * 7, "esc");
+  278          //}
+  279          
+  280          //void Function_c23()
+  281          //{
+  282          //    ips200_show_string(0, 16 * 5, "->");
+  283          //    ips200_show_string(20, 16 * 1, "erase_flash");
+  284          //    ips200_show_string(20, 16 * 3, "car_satrt");
+  285          //    ips200_show_string(20, 16 * 5, "check_page_exist");
+  286          //    ips200_show_string(20, 16 * 7, "esc");
+  287          //}
+  288          
+  289          //void Function_c24()
+  290          //{
+  291          //    ips200_show_string(0, 16 * 7, "->");
+  292          //    ips200_show_string(20, 16 * 1, "erase_flash");
+  293          //    ips200_show_string(20, 16 * 3, "car_satrt");
+  294          //    ips200_show_string(20, 16 * 5, "check_page_exist");
+  295          //    ips200_show_string(20, 16 * 7, "esc");
+  296          //}
+  297          
+  298          ///*********µÚ3²ã***********/
+  299          
+  300          //// º¯Êıa3ÏµÁĞÊÇÓĞ¹ØgpsÊı¾İµÄ
+  301          //void Function_a31()    // GPSµãÎ»²É¼¯²¢´æÈë¶ÔÓ¦FLASH
+  302          //{                      // ÒòÎª²Ëµ¥µÄÔµ¹Ê£¬ËùÒÔkey3£¬key4¾Í²»ÄÜÈ¥²Ù×÷£¬Ö»ÓĞkey1£¬key2¿ÉÒÔ²Ù×÷
+  303          //    int i = 2;         // ¶¨Òå¾Ö²¿±äÁ¿£¬·½±ãÏÔÊ¾ÄÚÈİÕûÌåÆ½ÒÆ
+  304          //    if (only_one_time) // Á¬ĞøºÃ¼¸´Îµ÷ÓÃ±¾º¯ÊıµÄÊ±ºò£¬½öÔÚµÚÒ»´ÎÖ´ĞĞ±¾º¯ÊıÊ±Ö´ĞĞÒ»´Î
+  305          //    {
+  306          //        flag_key1 = 0; // ·ÀÖ¹ÉÏÒ»¸öº¯Êı²Ù×÷Íê »ò ²»Ğ¡ĞÄ°´ÏÂkey1 £¬½øÈëÕâ¸öº¯Êı²Ù×÷ĞèÒªÊ×ÏÈ¸øflag_key1Ö
+             -Ã0.
+  307          //        only_one_time = false;
+  308          //    }
+  309          //    if (flag_key1)
+  310          //    {
+  311          //        ips200_show_string(0 * 8, (i + 0) * 8, "press key2 to store point");
+  312          //        ips200_show_string(0 * 8, (i + 2) * 8, "press key3 to exit");
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 6   
+
+  313          
+  314          //        if (flag_key2) // °´ÏÂ°´¼ü1ºó£¬Ã¿°´Ò»´Î°´¼ü2´æÒ»¸öµã
+  315          //        {
+  316          //            flag_key2 = 0;
+  317          //            // store();
+  318          //            StoreGpsToFlash();
+  319          //        }
+  320          //        ips200_show_string(0 * 8, (i + 30) * 8, "real time latitude"); // ÏÔÊ¾ÍêÕû×ø±ê
+  321          //        ips200_show_float(0 * 8, (i + 32) * 8, gnss.latitude, 3, 6);
+  322          //        ips200_show_string(0 * 8, (i + 34) * 8, "real time longitude");
+  323          //        ips200_show_float(0 * 8, (i + 36) * 8, gnss.longitude, 3, 6);
+  324          //    }
+  325          //    else
+  326          //    {
+  327          //        ips200_show_string(0 * 8, (i + 0) * 8, "press key1 enter storage mode"); // ÕâÀïÉÙ¸öto£¬ÆÁÄ»×°²
+             -»ÏÂ£¬Ö»ºÃÉ¾µôÁË£¬×¢ÒâÓ¢ÎÄÓï·¨£¡
+  328          //    }
+  329          //}
+  330          
+  331          //void Function_a32() //  ´æ´¢µãÊı
+  332          //{
+  333          //    int i = 2;         // ¶¨Òå¾Ö²¿±äÁ¿£¬·½±ãÏÔÊ¾ÄÚÈİÕûÌåÆ½ÒÆ
+  334          //    if (only_one_time) // Á¬ĞøºÃ¼¸´Îµ÷ÓÃ±¾º¯ÊıµÄÊ±ºò£¬½öÔÚµÚÒ»´ÎÖ´ĞĞ±¾º¯ÊıÊ±Ö´ĞĞÒ»´Î
+  335          //    {
+  336          //        flag_key1 = 0; // ·ÀÖ¹ÉÏÒ»¸öº¯Êı²Ù×÷Íê »ò ²»Ğ¡ĞÄ°´ÏÂkey1 £¬½øÈëÕâ¸öº¯Êı²Ù×÷ĞèÒªÊ×ÏÈ¸øflag_key1Ö
+             -Ã0.
+  337          //        only_one_time = false;
+  338          //    }
+  339          //    if (flag_key1)
+  340          //    {
+  341          //        ips200_show_string(0 * 8, (i + 0) * 8, "press key2 store number");
+  342          //        ips200_show_string(0 * 8, (i + 2) * 8, "press key3 to exit");
+  343          
+  344          //        if (flag_key2) // °´ÏÂ°´¼ü1ºó£¬Ã¿°´Ò»´Î°´¼ü2´æÒ»¸öµã
+  345          //        {
+  346          //            flag_key2 = 0;
+  347          //            StorePointerNumber();
+  348          //            ips200_show_string(0 * 8, (i + 26) * 8, "current_point_number_flash"); // ÏÔÊ¾Õâ¸ö±íÊ¾´æµã³
+             -É¹¦
+  349          //            ips200_show_uint(0 * 8, (i + 28) * 8, current_point_number_flash, 3);
+  350          //        }
+  351          
+  352          //        ips200_show_string(0 * 8, (i + 30) * 8, "real time latitude"); // ÏÔÊ¾ÍêÕû×ø±ê
+  353          //        ips200_show_float(0 * 8, (i + 32) * 8, gnss.latitude, 3, 6);
+  354          //        ips200_show_string(0 * 8, (i + 34) * 8, "real time longitude");
+  355          //        ips200_show_float(0 * 8, (i + 36) * 8, gnss.longitude, 3, 6);
+  356          //    }
+  357          //    else
+  358          //    {
+  359          //        ips200_show_string(0 * 8, (i + 0) * 8, "press key1 enter storage mode"); // ÕâÀïÉÙ¸öto£¬ÆÁÄ»×°²
+             -»ÏÂ£¬Ö»ºÃÉ¾µôÁË£¬×¢ÒâÓ¢ÎÄÓï·¨£¡
+  360          //    }
+  361          //}
+  362          
+  363          //void Function_a33() // ÏÔÊ¾¹ØÓÚgpsµÄ×ÛºÏĞÅÏ¢
+  364          //{
+  365          //    DisplayGpsData();
+  366          //}
+  367          
+  368          //// º¯Êıb3ÏµÁĞÊÇÓĞ¹Ø ÅÜ³µ²ÎÊıµ÷½ÚµÄ
+  369          //void Function_b31() // ±Õ»·×´Ì¬ÏÂregulate speed µ÷½ÚËÙ¶È
+  370          //{
+  371          //    int i = 4; // ¶¨Òå¾Ö²¿±äÁ¿£¬·½±ãÏÔÊ¾ÄÚÈİÕûÌåÆ½ÒÆ
+  372          //    ips200_show_string(0 * 8, (i - 2) * 8, "press key3 to exit");
+  373          //    ips200_show_string(0 * 8, (i + 0) * 8, "press key2 to add speed");
+  374          //    ips200_show_string(0 * 8, (i + 2) * 8, "press key1 to sub speed");
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 7   
+
+  375          //    ips200_show_string(0 * 8, (i + 4) * 8, "press key4 store speed"); // ÕâÀïÉÙ¸öto£¬ÆÁÄ»×°²»ÏÂ£¬Ö»ºÃÉ¾
+             -µôÁË£¬×¢ÒâÓ¢ÎÄÓï·¨£¡
+  376          //    ips200_show_string(0 * 8, (i + 10) * 8, "flag_close_loop");
+  377          //    ips200_show_uint(0 * 8, (i + 12) * 8, flag_close_loop, 5);
+  378          
+  379          //    MenuKeyOperation(&target_speed); // Ö±½Ó²Ù×÷µØÖ·£¬±ÜÃâÁËĞÎ²ÎÎª¶¯Ì¬±äÁ¿»á×Ô¶¯ÊÍ·ÅÄÚ´æµÄÎÊÌâ
+  380          
+  381          //    if (flag_key4) // ÔÚ°´¼ü1°´ÏÂÎª1µÄÇé¿öÏÂ£¬°´¼ü2°´ÏÂÎª1½øÈë±£´æ²ÎÊıÄ£Ê½
+  382          //    {
+  383          //        flash_buffer_clear(); // Çå¿Õ»º³åÇø
+  384          
+  385          //        flash_union_buffer[0].int32_type = MenuKeyOperation(&target_speed) * 10; // ·µ»ØµÄËÙ¶È*10£¨·Å´ó
+             -£©
+  386          
+  387          //        if (flash_check(FLASH_SECTION_INDEX, SPEED_PAGE_INDEX)) // ·µ»Ø1£ºÓĞÄÚÈİ 2£ºÃ»ÄÚÈİ
+  388          //        {
+  389          //            flash_erase_page(FLASH_SECTION_INDEX, SPEED_PAGE_INDEX);
+  390          //        }
+  391          //        flash_write_page_from_buffer(FLASH_SECTION_INDEX, SPEED_PAGE_INDEX, 1); // ½«»º³åÇøµÄÊı¾İĞ´Èëµ½
+             -Ö¸¶¨Flash ÉÈÇøµÄÒ³Âë
+  392          //        // printf("\r\n»º³åÇøÊı¾İspeed:%d", flash_union_buffer[0].int32_type);
+  393          //        ips200_show_string(0 * 8, (i + 14) * 8, "successful storage");
+  394          //    }
+  395          //}
+  396          
+  397          //void Function_b32() // ´ıÌí¼Ó
+  398          //{
+  399          //    ips200_show_string(0, 16 * 1, "Looking forward to adding uses");
+  400          //}
+  401          
+  402          //void Function_b33() // ¿ª»·×´Ì¬ÏÂ  µ÷½Úµç»úpwm
+  403          //{
+  404          //    int i = 4; // ¶¨Òå¾Ö²¿±äÁ¿£¬·½±ãÏÔÊ¾ÄÚÈİÕûÌåÆ½ÒÆ
+  405          //    ips200_show_string(0 * 8, (i - 2) * 8, "press key3 to exit");
+  406          //    ips200_show_string(0 * 8, (i + 0) * 8, "press key2 to add speed");
+  407          //    ips200_show_string(0 * 8, (i + 2) * 8, "press key1 to sub speed");
+  408          //    ips200_show_string(0 * 8, (i + 4) * 8, "press key4 store speed"); // ÕâÀïÉÙ¸öto£¬ÆÁÄ»×°²»ÏÂ£¬Ö»ºÃÉ¾
+             -µôÁË£¬×¢ÒâÓ¢ÎÄÓï·¨£¡
+  409          //    ips200_show_string(0 * 8, (i + 10) * 8, "flag_close_loop");
+  410          //    ips200_show_uint(0 * 8, (i + 12) * 8, flag_close_loop, 5);
+  411          
+  412          //    MenuKeyOperation(&motor_duty); // Ö±½Ó²Ù×÷µØÖ·£¬±ÜÃâÁËĞÎ²ÎÎª¶¯Ì¬±äÁ¿»á×Ô¶¯ÊÍ·ÅÄÚ´æµÄÎÊÌâ
+  413          
+  414          //    if (flag_key4) // ÔÚ°´¼ü1°´ÏÂÎª1µÄÇé¿öÏÂ£¬°´¼ü2°´ÏÂÎª1½øÈë±£´æ²ÎÊıÄ£Ê½
+  415          //    {
+  416          //        flash_buffer_clear(); // Çå¿Õ»º³åÇø
+  417          
+  418          //        flash_union_buffer[0].int32_type = MenuKeyOperation(&motor_duty); // ·µ»ØµÄduty
+  419          
+  420          //        if (flash_check(FLASH_SECTION_INDEX, SPEED_PAGE_INDEX)) // ·µ»Ø1£ºÓĞÄÚÈİ 2£ºÃ»ÄÚÈİ
+  421          //        {
+  422          //            flash_erase_page(FLASH_SECTION_INDEX, SPEED_PAGE_INDEX);
+  423          //        }
+  424          //        flash_write_page_from_buffer(FLASH_SECTION_INDEX, SPEED_PAGE_INDEX, 1); // ½«»º³åÇøµÄÊı¾İĞ´Èëµ½
+             -Ö¸¶¨Flash ÉÈÇøµÄÒ³Âë
+  425          //        // printf("\r\n»º³åÇøÊı¾İspeed:%d", flash_union_buffer[0].int32_type);
+  426          //        ips200_show_string(0 * 8, (i + 14) * 8, "successful storage");
+  427          //    }
+  428          //}
+  429          
+  430          //void Function_c31() // ÊÖ¶¯Çå³ıÏàÓ¦flashÉÈÒ³
+  431          //{
+  432          //    ips200_show_string(0 * 8, 2 * 8, "press key2 to add page");
+  433          //    ips200_show_string(0 * 8, 4 * 8, "press key3 to exit");
+  434          //    ips200_show_string(0 * 8, 6 * 8, "press key1 clear page");
+  435          
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 8   
+
+  436          //    if (flag_key2)
+  437          //    {
+  438          //        flag_key2 = 0;
+  439          //        page_index++;
+  440          //    }
+  441          //    ips200_show_string(0, 8 * 8, "page number:");
+  442          //    ips200_show_uint(0, 8 * 10, page_index, 3);
+  443          //    // ÒÔÏÂÊÇÒ³Âë ÕâÀï»¹¿ÉÒÔ¼ÌĞøÌí¼ÓÄãĞèÒªµÄÒ³Âë
+  444          //    ips200_show_string(0, 8 * 12, "erase gps page 11");
+  445          //    ips200_show_string(0, 8 * 14, "erase speed page 10");
+  446          //    ips200_show_string(0, 8 * 16, "erase flag page 9");
+  447          //    ips200_show_string(0, 8 * 18, "erase pointnum page 8");
+  448          
+  449          //    if (flag_key1)
+  450          //    {
+  451          //        EraseMenuFlash(page_index);                     // ÏÈÉ¾³ıÖ¸¶¨Ò³Âë
+  452          //        ips200_show_string(0, 8 * 30, "page cleared:"); // É¾³ıµÄÒ³Âë
+  453          //        ips200_show_uint(0, 8 * 32, page_index, 3);
+  454          //        page_index = 0; // É¾³ıÖ¸¶¨Ò³ÂëÖ®ºóÖÃ0
+  455          //        flag_key1 = 0;
+  456          //    }
+  457          //}
+  458          
+  459          //void Function_c32() // car_startµ÷½Ú
+  460          //{
+  461          //    int i = 2; // ¶¨Òå¾Ö²¿±äÁ¿£¬·½±ãÏÔÊ¾ÄÚÈİÕûÌåÆ½ÒÆ
+  462          
+  463          //    if (flag_key1) //---------------car_startµ÷½Ú
+  464          //    {
+  465          //        if (only_one_time == true) // º¯ÊıÖµµ÷ÓÃÒ»´Î
+  466          //        {
+  467          //            ips200_clear();
+  468          //            only_one_time = false;
+  469          //        }
+  470          //        flag_car_start = 1; // ´ò¿ª·¢³µ±êÖ¾Î»
+  471          //        // flag_menu_enable = 0;  // ¹Ø±Õ²Ëµ¥±êÖ¾Î»
+  472          //        // flag_control_mode = 0; // ¿ØÖÆÄ£Ê½ÎªÎŞ¿ØÄ£Ê½
+  473          
+  474          //        // ips200_show_string(0, 16 * 0, "flag_car_start");
+  475          //        // ips200_show_int(120, 0, flag_car_start, 3);
+  476          
+  477          //        ips200_show_string(0 * 8, (i + 4) * 8, "real_time_latitude");
+  478          //        ips200_show_float(0 * 8, (i + 6) * 8, real_time_latitude, 3, 6);
+  479          //        ips200_show_string(0 * 8, (i + 8) * 8, "real_time_longitude");
+  480          //        ips200_show_float(0 * 8, (i + 10) * 8, real_time_longitude, 3, 6);
+  481          //        ips200_show_string(0 * 8, (i + 12) * 8, "satellite_number");
+  482          //        ips200_show_uint(0 * 8, (i + 14) * 8, gnss.satellite_used, 5);
+  483          //        ips200_show_string(0 * 8, (i + 16) * 8, "current_point_number_flash");
+  484          //        ips200_show_uint(0 * 8, (i + 18) * 8, current_point_number_flash, 5);
+  485          //        ips200_show_string(0 * 8, (i + 20) * 8, "flag_auto_mode");
+  486          //        ips200_show_uint(0 * 8, (i + 22) * 8, flag_auto_mode, 3);
+  487          //        ips200_show_string(0 * 8, (i + 24) * 8, "flag_car_start");
+  488          //        ips200_show_uint(0 * 8, (i + 26) * 8, flag_car_start, 3);
+  489          //        ips200_show_string(0 * 8, (i + 36) * 8, "START !!!");
+  490          //    }
+  491          //    else
+  492          //    {
+  493          //        ips200_show_string(0 * 8, (i + 0) * 8, "press key1 enter storage mode"); // ÕâÀïÉÙ¸öto£¬ÆÁÄ»×°²
+             -»ÏÂ£¬Ö»ºÃÉ¾µôÁË£¬×¢ÒâÓ¢ÎÄÓï·¨£¡
+  494          //    }
+  495          //}
+  496          
+  497          //void Function_c33() // ¼ì²éÏàÓ¦µÄflashÒ³ÂëÊÇ·ñ´æÔÚÄÚÈİ
+  498          //{
+  499          //    CheckFlashContentExist();
+  500          //}
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 9   
+
+  501          
+  502          //#if 0
+  503          //void FlagParameterInit() // FLAG²ÎÊı³õÊ¼»¯
+  504          //{
+  505          //    if (flash_check(FLASH_SECTION_INDEX, FLAG_PAGE_INDEX)) // ÅĞ¶ÏFlashÊÇ·ñÓĞÊı¾İ : ÓĞÊı¾İ·µ»Ø1£¬ÎŞÊı¾İ
+             -·µ»Ø0
+  506          //    {
+  507          
+  508          //        flash_buffer_clear(); // Çå¿Õ»º³åÇø
+  509          
+  510          //        flash_read_page_to_buffer(FLASH_SECTION_INDEX, FLAG_PAGE_INDEX, 2); // ½«Êı¾İ´ÓFLASHÖ¸¶¨ÉÈÇøÒ³Â
+             -ë·ÅÈëµ½»º³åÇø
+  511          //        flag_car_start = flash_union_buffer[0].int32_type;                  // ÓÃÊ²Ã´Êı¾İÀàĞÍĞ´Èë»º³åÇø
+             -¾ÍÓÃÊ²Ã´ÀàĞÍ¶ÁÈ¡£¬²»È»´òÓ¡³öÀ´µÄÂëÊÇÂÒÂë
+  512          //        flag_menu_enable = flash_union_buffer[1].int32_type;
+  513          //        flash_erase_page(FLASH_SECTION_INDEX, FLAG_PAGE_INDEX); // Ã¿´ÎĞŞ¸ÄÖµ²¢¸´Î»ºó£¬½«FLASHÖĞµÄÖµ¸³¸
+             -ø±äÁ¿£¬È»ºó²Á³ıFLASHÖĞµÄÖµ(×Ô¶¯²Á³ı)
+  514          
+  515          //        printf("\r\nÒÑ¾­¸üĞÂ¹ıµÄ(flag_car_start):%d", flag_car_start);
+  516          //        printf("\r\nÒÑ¾­¸üĞÂ¹ıµÄ(flag_menu_enable):%d", flag_menu_enable);
+  517          //    }
+  518          //    else
+  519          //    {
+  520          //        printf("\r\nflagÎª³ÌĞòÔ­Ê¼Öµ(Î´¸ü¸Ä)");
+  521          //    }
+  522          //}
+  523          
+  524          //void StopPointParameterInit() // stop_point²ÎÊı³õÊ¼»¯
+  525          //{
+  526          //    if (flash_check(FLASH_SECTION_INDEX, STOP_POINT_PAGE_INDEX)) // ÅĞ¶ÏFlashÊÇ·ñÓĞÊı¾İ : ÓĞÊı¾İ·µ»Ø1£¬
+             -ÎŞÊı¾İ·µ»Ø0
+  527          //    {
+  528          
+  529          //        flash_buffer_clear(); // Çå¿Õ»º³åÇø
+  530          
+  531          //        flash_read_page_to_buffer(FLASH_SECTION_INDEX, STOP_POINT_PAGE_INDEX, 1); // ½«Êı¾İ´ÓFLASHÖ¸¶¨É
+             -ÈÇøÒ³Âë·ÅÈëµ½»º³åÇø
+  532          //        stop_point = flash_union_buffer[0].int32_type;                            // ÓÃÊ²Ã´Êı¾İÀàĞÍĞ´Èë
+             -»º³åÇø¾ÍÓÃÊ²Ã´ÀàĞÍ¶ÁÈ¡£¬²»È»´òÓ¡³öÀ´µÄÂëÊÇÂÒÂë
+  533          //        printf("\r\nÒÑ¾­¸üĞÂ¹ıµÄ(stop_point):%d", stop_point);
+  534          //    }
+  535          //    else
+  536          //    {
+  537          //        printf("\r\nstop_pointÎª³ÌĞòÉè¶¨Öµ(Ô­Ê¼Öµ)");
+  538          //    }
+  539          //}
+  540          
+  541          //void PointDistanceParameterInit() // point_distance²ÎÊı³õÊ¼»¯
+  542          //{
+  543          //    if (flash_check(FLASH_SECTION_INDEX, POINT_DICTANCE_PAGE_INDEX)) // ÅĞ¶ÏFlashÊÇ·ñÓĞÊı¾İ : ÓĞÊı¾İ·µ»
+             -Ø1£¬ÎŞÊı¾İ·µ»Ø0
+  544          //    {
+  545          
+  546          //        flash_buffer_clear(); // Çå¿Õ»º³åÇø
+  547          
+  548          //        flash_read_page_to_buffer(FLASH_SECTION_INDEX, POINT_DICTANCE_PAGE_INDEX, 1); // ½«Êı¾İ´ÓFLASHÖ
+             -¸¶¨ÉÈÇøÒ³Âë·ÅÈëµ½»º³åÇø
+  549          //        point_distance = flash_union_buffer[0].int32_type;                            // ÓÃÊ²Ã´Êı¾İÀàĞÍ
+             -Ğ´Èë»º³åÇø¾ÍÓÃÊ²Ã´ÀàĞÍ¶ÁÈ¡£¬²»È»´òÓ¡³öÀ´µÄÂëÊÇÂÒÂë
+  550          //        printf("\r\nÒÑ¾­¸üĞÂ¹ıµÄ(point_Distance):%d", point_distance);
+  551          //    }
+  552          //    else
+  553          //    {
+  554          //        printf("\r\npoint_DistanceÎª³ÌĞòÉè¶¨Öµ(Ô­Ê¼Öµ)");
+  555          //    }
+  556          //}
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 10  
+
+  557          
+  558          //void Function_b32() // blank
+  559          //{
+  560          //    if (flag_key1 && !flag_key2) //---------------stop_pointµ÷½Ú
+  561          //    {
+  562          
+  563          //        while (flag_key1)
+  564          //        {
+  565          //            ips200_show_string(0, 16 * 1, "now executing"); // ´ıÖ´ĞĞº¯ÊıÖ´ĞĞ Function is executing
+  566          //            ips200_show_string(0, 16 * 2, "now regulate stop_point value");
+  567          
+  568          //            stop_point_pointer = &(stop_point);
+  569          //            MenuKey_Operation(stop_point_pointer); // Ö±½Ó²Ù×÷µØÖ·£¬±ÜÃâÁËĞÎ²ÎÎª¶¯Ì¬±äÁ¿»á×Ô¶¯ÊÍ·ÅÄÚ´æµ
+             -ÄÎÊÌâO         if (flag_key2)            // ÔÚ×ó²¦Âë¿ª¹ØÎª1µÄÇé¿öÏÂ£¬ÓÒ²¦Âë¿ª¹ØÎª1½øÈë±£´æ²ÎÊıÄ£Ê½
+  570          //            {
+  571          //                flash_buffer_clear(); // Çå¿Õ»º³åÇø
+  572          //                flash_union_buffer[0].int32_type = MenuKeyOperation(stop_point_pointer);
+  573          //                flash_write_page_from_buffer(FLASH_SECTION_INDEX, STOP_POINT_PAGE_INDEX, 1); // ½«»º³åÇ
+             -øµÄÊı¾İĞ´Èëµ½Ö¸¶¨Flash ÉÈÇøµÄÒ³Âë
+  574          //                printf("\r\n»º³åÇøÊı¾İstop_point:%d", flash_union_buffer[0].int32_type);
+  575          //                ips200_show_string(0, 16 * 4, "Successfully store stoppoint value!");
+  576          //            }
+  577          //        }
+  578          //    }
+  579          
+  580          //    if (flag_key2 && !flag_key1) //---------------point_distanceµ÷½Ú
+  581          //    {
+  582          //        while (flag_key2)
+  583          //        {
+  584          //            ips200_show_string(0, 16 * 1, "Function is executing"); // ´ıÖ´ĞĞº¯ÊıÖ´ĞĞ
+  585          //            ips200_show_string(0, 16 * 2, "now regulate point_distance value");
+  586          
+  587          //            point_distance_pointer = &(point_distance);
+  588          //            MenuKeyOperation(point_distance_pointer); // Ö±½Ó²Ù×÷µØÖ·£¬±ÜÃâÁËĞÎ²ÎÎª¶¯Ì¬±äÁ¿»á×Ô¶¯ÊÍ·ÅÄÚ
+             -´æµÄÎÊÌâ
+  589          
+  590          //            if (flag_key1) // ÔÚÓÒ²¦Âë¿ª¹ØÎª1µÄÇé¿öÏÂ£¬×ó²¦Âë¿ª¹ØÎª1½øÈë±£´æ²ÎÊıÄ£Ê½
+  591          //            {
+  592          //                flash_buffer_clear(); // Çå¿Õ»º³åÇø
+  593          //                flash_union_buffer[0].int32_type = MenuKeyOperation(point_distance_pointer);
+  594          //                flash_write_page_from_buffer(FLASH_SECTION_INDEX, POINT_DICTANCE_PAGE_INDEX, 1); // ½«»
+             -º³åÇøµÄÊı¾İĞ´Èëµ½Ö¸¶¨Flash ÉÈÇøµÄÒ³Âë
+  595          //                printf("\r\n»º³åÇøÊı¾İpoint_distance:%d", flash_union_buffer[0].int32_type);
+  596          //                ips200_show_string(0, 16 * 4, "Record param_t OK!");
+  597          //            }
+  598          //        }
+  599          //    }
+  600          //}
+  601          
+  602          //void Function_b33() // Çå³ı
+  603          //{
+  604          //    if (flag_key1 && !flag_key2)
+  605          //    {
+  606          //        flash_buffer_clear();             // Çå¿Õ»º³åÇø(±£Ö¤ÓĞÒ»¸ö¸É¾»µÄ»º³åÇø)------Warning
+  607          //        MenuFlashClear(SPEED_PAGE_INDEX); // Çå³ıspeed²ÎÊıFLASH
+  608          //    }
+  609          
+  610          //    if (flag_key1 && flag_key2)
+  611          //    {
+  612          //        flash_buffer_clear();                  // Çå¿Õ»º³åÇø(±£Ö¤ÓĞÒ»¸ö¸É¾»µÄ»º³åÇø)------Warning
+  613          //        MenuFlashClear(STOP_POINT_PAGE_INDEX); // Çå³ıstop_point²ÎÊıFLASH
+  614          //    }
+  615          
+  616          //    if (!flag_key1 && flag_key2)
+  617          //    {
+  618          //        flash_buffer_clear();                      // Çå¿Õ»º³åÇø(±£Ö¤ÓĞÒ»¸ö¸É¾»µÄ»º³åÇø)------Warning
+C251 COMPILER V5.60.0,  menu                                                               07/03/26  14:50:36  PAGE 11  
+
+  619          //        MenuFlashClear(POINT_DICTANCE_PAGE_INDEX); // Çå³ıpoint_distance²ÎÊıFLASH
+  620          //    }
+  621          //}
+*** WARNING C38 IN LINE 621 OF menu.c: empty translation unit
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =    ------     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
