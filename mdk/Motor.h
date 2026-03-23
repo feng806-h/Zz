@@ -1,14 +1,15 @@
 #include "zf_common_headfile.h"
 
 
-typedef struct motor
-{
-        int target_speed;
-        int duty;
-        int encoder_speed;   //记录速度，低空滤波
-        int encoder_raw;     //记录中断时间内的脉冲信号
-        int32 total_encoder;      //累加值，记录路程
-}motor;
+//typedef struct 
+//{
+//        float target_speed;
+//        float duty;
+//        float encoder_speed;   //记录速度，低空滤波
+
+//        float encoder_raw;     //记录中断时间内的脉冲信号
+//        float total_encoder;      //累加值，记录路程
+//}motor;
 
 
 
@@ -17,8 +18,8 @@ typedef struct motor
 #define MotorL_turn1 IO_P60
 #define MotorR_turn2 IO_P64
 
-extern struct motor motor_l;
-extern struct motor motor_r;
+//extern  motor motor_l;
+//extern  motor motor_r;
 
 
 

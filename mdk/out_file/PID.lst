@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  PID                                                                18/03/26  15:56:40  PAGE 1   
+C251 COMPILER V5.60.0,  PID                                                                23/03/26  19:17:23  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE PID
@@ -9,73 +9,230 @@ COMPILER INVOKED BY: C:\Keil_v5\C251\BIN\C251.EXE PID.c LARGE NOALIAS FLOAT64 WA
 
 stmt  level    source
 
-    1          #include "PID.h"
-    2          
-    3          //ÔöÁ¿Ê½PID²ÎÊý£¨ËÙ¶È»·£©
-    4          PID motor_pid_l;
-    5          PID motor_pid_r;
-    6          
-    7          //-------------------------------------------------------------------------------------------------------
+    1          
+    2          #include "PID.h"
+    3          
+    4          //ÔöÁ¿Ê½PID²ÎÊý£¨ËÙ¶È»·£©
+    5          //PID motor_pid_l;
+    6          //PID motor_pid_r;
+    7          //pid_cycle_struct v_pid1;
+    8          //pid_cycle_struct v_pid2;
+    9          
+   10          control_cascade_parameter control_cascade = {{0}};
+   11          
+   12          //-------------------------------------
+   13          //------------------------------------------------------------------------------
+   14          //  º¯Êý¼ò½é      PID ³õÊ¼»¯
+   15          //  ²ÎÊýËµÃ÷      PID½á¹¹Ìå  kp ki kd
+   16          //  ·µ»Ø²ÎÊý      float
+   17          //  Ê¹ÓÃÊ¾Àý     PID_Increase(&,0,0,0);
+   18          //  ±¸×¢ÐÅÏ¢
+   19          //-------------------------------------------------------------------------------------------------------
              -------------
-    8          //  º¯Êý¼ò½é      PID ÔöÁ¿Ê½
-    9          //  ²ÎÊýËµÃ÷      PID½á¹¹Ìå  point Ä¿±êÖµ    NowDataÊµ¼ÊÖµ
-   10          //  ·µ»Ø²ÎÊý      float
-   11          //  Ê¹ÓÃÊ¾Àý     PID_Increase(&,0,0);
-   12          //  ±¸×¢ÐÅÏ¢
-   13          //-------------------------------------------------------------------------------------------------------
+   20          
+   21          //void PID_Init(PID* pid, float kp, float ki, float kd, float low_pass)
+   22          //{
+   23          //    pid->Kp = kp;
+   24          //    pid->Ki = ki;
+   25          //    pid->Kd = kd;
+   26          //    pid->LowPass = low_pass;
+   27          //    pid->Out_P = 0;
+   28          //    pid->Out_I = 0;
+   29          //    pid->Out_D = 0;
+   30          //    pid->PrevError = 0;
+   31          //    pid->LastError = 0;
+   32          //    pid->Error = 0;
+   33          //    pid->LastData = 0;
+   34          //}
+   35          
+   36          
+   37          //-------------------------------------------------------------------------------------------------------
              -------------
-   14          float PID_Increase(PID *PID,float NowData,float Point)
-   15          {
-   16   1          PID->Error=Point-NowData;
-   17   1          PID->Out_P=(PID->Error-PID->LastError);
-   18   1          PID->Out_I=PID->Error;
-   19   1      
-   20   1          PID->Out_D=(PID->Error-2*PID->LastError+PID->PrevError);
-   21   1      
-   22   1          PID->PrevError=0.9*PID->LastError+0.1*PID->PrevError;
-   23   1          PID->LastError=0.9*PID->Error+0.1*PID->LastError;
-   24   1      
-   25   1          PID->LastData=NowData;
-   26   1          return(PID->Kp*PID->Out_P+PID->Ki*PID->Out_I+PID->Kd*PID->Out_D);
-   27   1      }
-   28          
-   29          
-   30          void PID_Init(PID* pid, float kp, float ki, float kd, float low_pass)
-   31          {
-   32   1          pid->Kp = kp;
-   33   1          pid->Ki = ki;
-   34   1          pid->Kd = kd;
-   35   1          pid->LowPass = low_pass;
-   36   1          pid->Out_P = 0;
-   37   1          pid->Out_I = 0;
-   38   1          pid->Out_D = 0;
-   39   1          pid->PrevError = 0;
-   40   1          pid->LastError = 0;
-   41   1          pid->Error = 0;
-   42   1          pid->LastData = 0;
-   43   1      }
+   38          //  º¯Êý¼ò½é      PID ÔöÁ¿Ê½
+   39          //  ²ÎÊýËµÃ÷      PID½á¹¹Ìå  point Ä¿±êÖµ    NowDataÊµ¼ÊÖµ
+   40          //  ·µ»Ø²ÎÊý      float
+   41          //  Ê¹ÓÃÊ¾Àý     PID_Increase(&,0,0);
+   42          //  ±¸×¢ÐÅÏ¢
+   43          //-------------------------------------------------------------------------------------------------------
+             -------------
+   44          //float PID_Increase(PID *PID,float NowData,float Point)
+   45          //{
+   46          //    PID->Error=Point-NowData;
+   47          //    PID->Out_P=(PID->Error-PID->LastError);
+   48          //    PID->Out_I=PID->Error;
+   49          
+   50          //    PID->Out_D=(PID->Error-2*PID->LastError+PID->PrevError);
+   51          
+   52          //    PID->PrevError=0.9*PID->LastError+0.1*PID->PrevError;
+   53          //    PID->LastError=0.9*PID->Error+0.1*PID->LastError;
+   54          
+C251 COMPILER V5.60.0,  PID                                                                23/03/26  19:17:23  PAGE 2   
+
+   55          //    PID->LastData=NowData;
+   56          //    return(PID->Kp*PID->Out_P+PID->Ki*PID->Out_I+PID->Kd*PID->Out_D);
+   57          //}
+   58          //-----------------------------------------------------------------------------------------
+   59          // º¯Êý¼ò½é     PID±Õ»·¼ÆËã£¨Î»ÖÃÊ½£©
+   60          // ²ÎÊýËµÃ÷     pid_cycle                   PID²ÎÊý½á¹¹Ìå
+   61          // ²ÎÊýËµÃ÷     target                      Ä¿±êÖµ
+   62          // ²ÎÊýËµÃ÷     actual                      Êµ¼ÊÖµ
+   63          // ·µ»Ø²ÎÊý     void
+   64          // Ê¹ÓÃÊ¾Àý     positon_pid_control(&direction_cycle,atmizh,yaw);
+   65          // ±¸×¢ÐÅÏ¢
+   66          //------------------------------------------------------------------------------------------
+   67          void positon_pid_control(pid_cycle_struct* pid_cycle,float target,float actual)
+   68          {
+   69   1          float  proportion_value    = 0;                 // ±ÈÀýÁ¿
+   70   1          float  differential_value  = 0;                 // Î¢·ÖÁ¿
+   71   1      
+   72   1          proportion_value = target - actual;             // ±ÈÀýÁ¿ = Ä¿±êÖµ - Êµ¼ÊÖµ
+   73   1      
+   74   1          /*»ý·Ö·ÖÀë
+   75   1               if(fabsf(pid_cycle->intergal)< ãÐÖµ) {
+   76   1                    C=1;
+   77   1               }
+   78   1               else{
+   79   1                    C=0;
+   80   1               }
+   81   1               pid_cycle->out = (...... + C * pid_cycle->ki * pid_cycle->intergal );
+   82   1          */
+   83   1      
+   84   1          /*±äËÙ»ý·Ö
+   85   1              C=1/(k*fabsf(proportion_value)+1);
+   86   1              pid_cycle->intergal += C * proportion_value;
+   87   1          */
+   88   1      
+   89   1          //±äËÙ»ý·ÖÒ²¿ÉÒÔ¼Ó»ý·ÖÏÞ·ù
+   90   1      
+   91   1          /*Î¢·ÖÏÈÐÐ
+   92   1               out_last = out;
+   93   1               differential_value = out - out_last;
+   94   1               pid_cycle->out = (...... + (-1) * pid_cycle->kd * differential_value );
+   95   1          */
+   96   1          if(pid_cycle->ki != 0){
+   97   2          pid_cycle->intergal += proportion_value;                                   // »ý·ÖÁ¿
+   98   2      
+   99   2          pid_cycle->intergal = func_limit_ab(pid_cycle->intergal,-pid_cycle->intergal_max,pid_cycle->intergal_
+             -max);// »ý·ÖÏÞ·ù
+  100   2          }
+  101   1      
+  102   1          if(pid_cycle->kd != 0){
+  103   2          differential_value = proportion_value - pid_cycle->last_error;             // Î¢·ÖÁ¿ = ±ÈÀýÁ¿ - ÉÏ´Î±
+             -ÈÀýÁ¿
+  104   2          }
+  105   1      
+  106   1          pid_cycle->out = (pid_cycle->kp * proportion_value + pid_cycle->ki * pid_cycle->intergal + pid_cycle-
+             ->kd * differential_value);
+  107   1      
+  108   1          pid_cycle->out = func_limit_ab(pid_cycle->out,-pid_cycle->out_max,pid_cycle->out_max);// pidÊä³öÏÞ·ù
+  109   1      
+  110   1          /*Êä³öÆ«ÒÆ
+  111   1               if(pid_cycle->out > 0){
+  112   1                   pid_cycle->out += Æ«ÒÆÖµ
+  113   1               }
+  114   1               else if(pid_cycle->out < 0){
+  115   1                   pid_cycle->out -= Æ«ÒÆÖµ
+  116   1               }
+  117   1               else{
+C251 COMPILER V5.60.0,  PID                                                                23/03/26  19:17:23  PAGE 3   
+
+  118   1                   pid_cycle->out = 0;
+  119   1               }
+  120   1          */
+  121   1          pid_cycle->last_error = proportion_value;                                             //±£ÁôÉÏ´Î±ÈÀýÁ
+             -¿
+  122   1      }
+  123          //-----------------------------------------------------------------------------------------
+  124          // º¯Êý¼ò½é     PID±Õ»·¼ÆËã£¨ÔöÁ¿Ê½£©
+  125          // ²ÎÊýËµÃ÷     pid_cycle                   PID²ÎÊý½á¹¹Ìå
+  126          // ²ÎÊýËµÃ÷     target                      Ä¿±êÖµ
+  127          // ²ÎÊýËµÃ÷     actual                      Êµ¼ÊÖµ
+  128          // ·µ»Ø²ÎÊý     void
+  129          // Ê¹ÓÃÊ¾Àý     Incremental_pid_control(&speed_cycle,target_speed,encoder);
+  130          // ±¸×¢ÐÅÏ¢     Ä¿Ç°Ã»ÓÐ¶Ô×ÜÊä³öÏÞ·ù
+  131          //------------------------------------------------------------------------------------------
+  132          void Incremental_pid_control(pid_cycle_struct* pid_cycle,float target,float actual)
+  133          {
+  134   1          float  proportion_value    = 0;                 //±ÈÀýÁ¿
+  135   1          float  error_value      = 0;                    //Îó²î
+  136   1          float  differential_value  = 0;                 //Î¢·ÖÁ¿
+  137   1      
+  138   1          error_value   = target - actual;                                        //Îó²î = Ä¿±êÖµ - Êµ¼ÊÖµ
+  139   1      
+  140   1          if(pid_cycle->kp != 0){
+  141   2              proportion_value = error_value - pid_cycle->last_error;             //±ÈÀýÁ¿ = Îó²î - ÉÏ´ÎÎó²î
+  142   2          }
+  143   1      
+  144   1          if(pid_cycle->kd != 0){
+  145   2              //Î¢·ÖÁ¿ = Îó²î + ÉÏÉÏ´ÎÎó²î - 2ÉÏ´ÎÎó²î
+  146   2              differential_value = error_value + pid_cycle->before_last_error - 2 * pid_cycle->last_error;
+  147   2          }
+  148   1          //pidÔöÁ¿
+  149   1          pid_cycle->out_variation = (pid_cycle->kp * proportion_value + pid_cycle->ki * pid_cycle->intergal + 
+             -pid_cycle->kd * differential_value);
+  150   1          //pidÔöÁ¿ÏÞ·ù
+  151   1          pid_cycle->out_variation = func_limit_ab(pid_cycle->out_variation,-pid_cycle->out_variation_max,pid_c
+             -ycle->out_variation_max);
+  152   1      
+  153   1          pid_cycle->out += pid_cycle->out_variation;
+  154   1      
+  155   1          pid_cycle->before_last_error =pid_cycle->last_error;            //±£ÁôÉÏÉÏ´ÎÎó²î
+  156   1      
+  157   1          pid_cycle->last_error = error_value;                            //±£ÁôÉÏ´ÎÎó²î
+  158   1      }
+  159          //------------------------------------------------------------------------------------------
+  160          // º¯Êý¼ò½é     ³µ×ÓµÄËùÓÐpid²ÎÊýº¯Êý
+  161          // ²ÎÊýËµÃ÷     ÎÞ
+  162          // ·µ»Ø²ÎÊý     void
+  163          // Ê¹ÓÃÊ¾Àý
+  164          // ±¸×¢ÐÅÏ¢     ³õÊ¼»¯µ÷ÓÃÒ»´Î
+  165          //------------------------------------------------------------------------------------------
+  166          void control_cascade_init (void)
+  167          {
+  168   1        control_cascade.speed_pid1.kp=10.72;
+  169   1        control_cascade.speed_pid1.ki=0.073;
+  170   1        control_cascade.speed_pid1.intergal_max=10000;
+  171   1        control_cascade.speed_pid1.out_max=2000;
+  172   1        
+  173   1        control_cascade.speed_pid2.kp=10.75;
+  174   1        control_cascade.speed_pid2.ki=0.09;
+  175   1        control_cascade.speed_pid2.intergal_max=10000;
+  176   1        control_cascade.speed_pid2.out_max=2000;
+  177   1        /*pid->last_error=0;
+  178   1        pid->before_last_error=0;
+  179   1        pid->intergal=0;
+  180   1        pid->intergal_max=10000;
+C251 COMPILER V5.60.0,  PID                                                                23/03/26  19:17:23  PAGE 4   
+
+  181   1        pid->out=0;
+  182   1        
+  183   1        pid->out_variation=0;
+  184   1        pid->out_variation_max=0;
+  185   1        pid->ki=0.2;
+  186   1        pid->kd=0;
+  187   1        pid->kp=3;
+  188   1        pid->out_max=2000;*/
+  189   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       514     ------
+  code size            =       714     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =        88         20
+  xdata size           =        88          8
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
-C251 COMPILER V5.60.0,  PID                                                                18/03/26  15:56:40  PAGE 2   
-
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =    ------     ------
+  hconst size          =        93     ------
 End of Module Information.
 
 

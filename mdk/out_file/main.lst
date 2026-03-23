@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               18/03/26  15:56:40  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               23/03/26  19:17:23  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -53,40 +53,42 @@ stmt  level    source
    36          #include "zf_common_headfile.h"
    37          #include "Init.h"
    38          #include "PID.h"
-   39          
+   39          #include "control.h"
    40          
    41          void main()
    42          {
    43   1          clock_init(SYSTEM_CLOCK_30M);
    44   1        debug_init();
    45   1        init();   //总体初始化
-   46   1        tim1_irq_handler = pit_hanlder1;  
-   47   1        pit_ms_init(TIM1_PIT, 1);
-   48   1      
-   49   1        // 此处编写用户代码 例如外设初始化代码等
-   50   1        
-   51   1          while(1)
-C251 COMPILER V5.60.0,  main                                                               18/03/26  15:56:40  PAGE 2   
+   46   1         //Encoder_Init();  
+   47   1      //  PID_Init(&motor_pid_l, 0, -0.2, 0, 1);
+   48   1      //  PID_Init(&motor_pid_r, 0, -0.2, 0, 1);
+   49   1      //  
+   50   1        tim1_irq_handler = pit_hanlder1;  
+   51   1        pit_ms_init(TIM1_PIT, 5);
+C251 COMPILER V5.60.0,  main                                                               23/03/26  19:17:23  PAGE 2   
 
-   52   1          {
-   53   2          printf("%d,%d\n",motor_l.encoder_speed, motor_r.encoder_speed);
-   54   2          system_delay_ms(10);
-   55   2          
-   56   2            
-   57   2          PID_Init(&motor_pid_l, 0, 0, 0, 1);
-   58   2          PID_Init(&motor_pid_r, 0, 0, 0, 1);
-   59   2           
-   60   2            
-   61   2      
-   62   2              // 此处编写需要循环执行的代码
-   63   2          
-   64   2          }
-   65   1      }
+   52   1      
+   53   1      //  tim2_irq_handler = pit_hanlder2;  
+   54   1      //  pit_ms_init(TIM2_PIT, 1);
+   55   1        // 此处编写用户代码 例如外设初始化代码等
+   56   1        
+   57   1          while(1)
+   58   1          {
+   59   2      //    printf("%d,%d,%d,%d\n",motor_l.encoder_raw, motor_r.encoder_raw,motor_l.duty, motor_r.duty);
+   60   2              printf("%f,%f,%d,%d,%d\n",motor_lduty,motor_rduty,speed_l2, speed_r2,150);
+   61   2          system_delay_ms(10);
+   62   2      //  MotorL_SetSpeed(1000);
+   63   2           
+   64   2              // 此处编写需要循环执行的代码
+   65   2          
+   66   2          }
+   67   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       236     ------
+  code size            =       216     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
@@ -101,7 +103,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =         9     ------
+  hconst size          =        18     ------
 End of Module Information.
 
 

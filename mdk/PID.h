@@ -1,39 +1,28 @@
 #include "zf_common_headfile.h"
-typedef struct PID
+typedef struct
 {
-        float Kp;
-        float Ki;
-        float Kd;
-        float LowPass;
-        
+float last_error;
+float before_last_error;
+float intergal;
+float intergal_max;
+float out;
+float out_max;
+float out_variation;
+float out_variation_max;
+float kp;
+float ki;
+float kd;
+}pid_cycle_struct;
 
-        float Out_P;
-        float Out_I;
-        float Out_D;
-       
-
-        float PrevError;
-        float LastError;
-        float Error;
-        float LastData;
-     
-}PID;
-
-#define PID_CREATE(_kp,_ki,_kd,_low_pass)\
-{                                        \
-    .Kp=_kp,                             \
-    .Ki=_ki,                             \
-    .Kd=_kd,                             \
-    .LowPass=_low_pass,                  \
-    .Out_P=0,                            \
-    .Out_I=0,                            \
-    .Out_D=0,                            \
-}
+typedef struct{
+        pid_cycle_struct speed_pid1;
+        pid_cycle_struct speed_pid2;
+}control_cascade_parameter;
 
 
-extern PID motor_pid_l;
-extern PID motor_pid_r;
 
+extern control_cascade_parameter control_cascade;
 
-float PID_Increase(PID *PID,float NowData,float Point);
-void PID_Init(PID* pid, float kp, float ki, float kd, float low_pass);
+void positon_pid_control(pid_cycle_struct* pid_cycle,float target,float actual);
+void Incremental_pid_control(pid_cycle_struct* pid_cycle,float target,float actual);
+void control_cascade_init (void);

@@ -1,0 +1,58 @@
+C251 COMPILER V5.60.0,  ADC                                                                23/03/26  19:17:23  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE ADC
+OBJECT MODULE PLACED IN .\out_file\ADC.obj
+COMPILER INVOKED BY: C:\Keil_v5\C251\BIN\C251.EXE ADC.c LARGE NOALIAS FLOAT64 WARNINGLEVEL(3) OPTIMIZE(SIZE) BROWSE INCD
+                    -IR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;..\user;.
+                    -.\code) DEBUG PRINT(.\out_file\ADC.lst) TABS(2) OBJECT(.\out_file\ADC.obj) 
+
+stmt  level    source
+
+    1          #include "ADC.h"
+    2          
+    3          
+    4          
+    5          
+    6          
+    7          
+    8          /***************************电感采集通道初始化****************************
+    9          函数：  void ADC_int(void)  
+   10          功能：  电感采值进行初始化
+   11          参数：  void
+   12          说明：  电感采集初始化
+   13          返回值；无
+   14          日期：  
+   15          作者：  
+   16          ************************************************************************/
+   17          void ADC_int(void)
+   18          {
+   19   1        adc_init(Left_ADC_Pin,ADC_8BIT);     //初始化左电感ADC功能
+   20   1        adc_init(Right_ADC_Pin,ADC_8BIT);    //初始化右电感为ADC功能 
+   21   1        adc_init(LeftShu_ADC_Pin,ADC_8BIT); //初始化左竖电感为ADC功能
+   22   1        adc_init(RightShu_ADC_Pin,ADC_8BIT); //初始化右竖电感为ADC功能 
+   23   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =        44     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

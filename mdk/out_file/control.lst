@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  control                                                            18/03/26  15:56:40  PAGE 1   
+C251 COMPILER V5.60.0,  control                                                            23/03/26  19:17:23  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE control
@@ -12,68 +12,78 @@ stmt  level    source
     1          #include "control.h"
     2          #include "Motor.h"
     3          #include "PID.h"
-    4          
-    5          
-    6          //-------------------------------------------------------------------------------------------------------
+    4          #include "Init.h"
+    5          float motor_lduty=0;
+    6          float motor_rduty=0;
+    7          //-------------------------------------------------------------------------------------------------------
              -------------
-    7          //  函数简介        设计电机引脚，方向，速度
-    8          //  参数说明      pwm_channel_enum pin1    gpio_pin_enum pin2    int speed速度设置    uint8 just高电平   
+    8          //  函数简介        设计电机引脚，方向，速度
+    9          //  参数说明      pwm_channel_enum pin1    gpio_pin_enum pin2    int speed速度设置    uint8 just高电平   
              -uint8 lose低电平
-    9          //  返回参数
-   10          //  使用示例    speed_set(pwm_channel_enum pin1,gpio_pin_enum pin2,2000,0,1);
-   11          //  备注信息     内部调用
-   12          //-------------------------------------------------------------------------------------------------------
+   10          //  返回参数
+   11          //  使用示例    speed_set(pwm_channel_enum pin1,gpio_pin_enum pin2,2000,0,1);
+   12          //  备注信息     内部调用
+   13          //-------------------------------------------------------------------------------------------------------
              -------------
-   13          void speed_set(pwm_channel_enum pin1,gpio_pin_enum pin2,int speed,uint8 just,uint8 lose)
-   14          {
-   15   1          if(speed>0)
-   16   1          {
-   17   2              pwm_set_duty(pin1,speed);
-   18   2              gpio_set_level(pin2,just);
-   19   2          }
-   20   1          else
-   21   1          {
-   22   2              pwm_set_duty(pin1,-speed);
-   23   2              gpio_set_level(pin2,lose);
-   24   2          }
-   25   1      }
-   26          
+   14          void speed_set(pwm_channel_enum pin1,gpio_pin_enum pin2,float speed,uint8 just,uint8 lose)
+   15          {
+   16   1          if(speed>0)
+   17   1          { 
+   18   2              pwm_set_duty(pin1,(int)(speed));
+   19   2              gpio_set_level(pin2,just);
+   20   2          }
+   21   1          else
+   22   1          {
+   23   2              pwm_set_duty(pin1,-(int)(speed));
+   24   2              gpio_set_level(pin2,lose);
+   25   2          }
+   26   1      }
    27          
-   28          //-------------------------------------------------------------------------------------------------------
+   28          
+   29          
+   30          //-------------------------------------------------------------------------------------------------------
              -------------
-   29          //  函数简介      电机闭环控制
-   30          //  参数说明
-   31          //  返回参数
-   32          //  使用示例  Motor_Control(int speed_L,int speed_R);
-   33          //  备注信息
-   34          //-------------------------------------------------------------------------------------------------------
+   31          //  函数简介      电机闭环控制
+   32          //  参数说明
+   33          //  返回参数
+   34          //  使用示例  Motor_Control(int speed_L,int speed_R);
+   35          //  备注信息
+   36          //-------------------------------------------------------------------------------------------------------
              -------------
-   35          
-   36          void Motor_Control(int speed_L,int speed_R)
-   37          {
-   38   1          motor_l.target_speed= speed_L;
-   39   1          motor_r.target_speed= speed_R;
-   40   1      
-   41   1          motor_l.duty=motor_l.duty +PID_Increase(&motor_pid_l,(float)motor_l.encoder_speed,(float)motor_l.targ
-             -et_speed);
-   42   1          motor_r.duty=motor_r.duty +PID_Increase(&motor_pid_r,(float)motor_r.encoder_speed,(float)motor_r.targ
-             -et_speed);
-   43   1      
-   44   1          speed_set(MotorL_pwm1,MotorL_turn1,motor_r.duty,0,1);
-   45   1          speed_set(MotorR_pwm2,MotorR_turn2,motor_l.duty,1,0);
-   46   1      }
+   37          
+   38          void Motor_Control(float speed_L,float speed_R)
+   39          {
+   40   1          //motor_l.target_speed= speed_L;
+   41   1          //motor_r.target_speed= speed_R;
+   42   1        
+   43   1        positon_pid_control(&control_cascade.speed_pid1,speed_L,(float)speed_l2);
+   44   1         motor_lduty=control_cascade.speed_pid1.out;
+   45   1        
+   46   1        positon_pid_control(&control_cascade.speed_pid2,speed_R,(float)speed_r2);
+   47   1         motor_rduty=control_cascade.speed_pid2.out;
+   48   1        //positon_pid_control(&speed_pid,motor_l.target_speed,motor_l.encoder_speed);
+   49   1        //positon_pid_control(&speed_pid,motor_r.target_speed,motor_r.encoder_speed);
+   50   1        //motor_r.duty=motor_l.duty;
+   51   1          /*motor_l.duty=motor_l.duty +PID_Increase(&motor_pid_l,motor_l.encoder_speed,motor_l.target_speed);
+   52   1          motor_r.duty=motor_r.duty +PID_Increase(&motor_pid_r,motor_r.encoder_speed,motor_r.target_speed);
+C251 COMPILER V5.60.0,  control                                                            23/03/26  19:17:23  PAGE 2   
+
+   53   1        
+   54   1          motor_l.duty=Limit(-800.0,motor_l.duty,800.0);
+   55   1          motor_r.duty=Limit(-800.0,motor_r.duty,800.0);*/
+   56   1          speed_set(MotorL_pwm1,MotorL_turn1,motor_lduty,1,0);
+   57   1          speed_set(MotorR_pwm2,MotorR_turn2,motor_rduty,1,0);
+   58   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       242     ------
-C251 COMPILER V5.60.0,  control                                                            18/03/26  15:56:40  PAGE 2   
-
+  code size            =       252     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =    ------     ------
+  xdata size           =         8          1
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -83,7 +93,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =    ------     ------
+  hconst size          =        18     ------
 End of Module Information.
 
 

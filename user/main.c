@@ -36,29 +36,31 @@
 #include "zf_common_headfile.h"
 #include "Init.h"
 #include "PID.h"
-
+#include "control.h"
 
 void main()
 {
     clock_init(SYSTEM_CLOCK_30M);
 	debug_init();
 	init();   //总体初始化
+	 //Encoder_Init();  
+//	PID_Init(&motor_pid_l, 0, -0.2, 0, 1);
+//  PID_Init(&motor_pid_r, 0, -0.2, 0, 1);
+//	
 	tim1_irq_handler = pit_hanlder1;	
-	pit_ms_init(TIM1_PIT, 1);
+	pit_ms_init(TIM1_PIT, 5);
 
+//	tim2_irq_handler = pit_hanlder2;	
+//	pit_ms_init(TIM2_PIT, 1);
 	// 此处编写用户代码 例如外设初始化代码等
 	
     while(1)
     {
-		printf("%d,%d\n",motor_l.encoder_speed, motor_r.encoder_speed);
+//		printf("%d,%d,%d,%d\n",motor_l.encoder_raw, motor_r.encoder_raw,motor_l.duty, motor_r.duty);
+				printf("%f,%f,%d,%d,%d\n",motor_lduty,motor_rduty,speed_l2, speed_r2,150);
 		system_delay_ms(10);
-	  
-			
-		PID_Init(&motor_pid_l, 0, 0, 0, 1);
-    PID_Init(&motor_pid_r, 0, 0, 0, 1);
+//	MotorL_SetSpeed(1000);
 	   
-			
-
 			  // 此处编写需要循环执行的代码
 		
     }
